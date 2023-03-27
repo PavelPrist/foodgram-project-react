@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'djoser',
-    'api.apps.ApiConfig'
+    'api.apps.ApiConfig',
     'recipes.apps.RecipesConfig',
     'users.apps.UsersConfig',
 ]
@@ -153,7 +153,7 @@ DJOSER = {
         "current_user": "users.serializers.CustomUserSerializer",
     },
     'PERMISSIONS': {
-        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user': ['djoser.permissions.CurrentUserOrAdmin'],
         'user_list': ['rest_framework.permissions.AllowAny']
     },
 }

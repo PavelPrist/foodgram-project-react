@@ -70,7 +70,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         'изображение к рецепту',
-        upload_to='recipes_img/',
+        upload_to='recipes_img/%Y/%m/',
         help_text='Загрузите изображение рецепта'
     )
     text = models.TextField(
@@ -100,8 +100,8 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        verbose_name = "рецепт"
-        verbose_name_plural = "рецепты"
+        verbose_name = 'рецепт'
+        verbose_name_plural = 'рецепты'
         ordering = ['-pub_date']
 
     def __str__(self):
@@ -129,7 +129,7 @@ class AmountOfIngredient(models.Model):
     )
 
     class Meta:
-        verbose_name = "количество ингредиента в рецепте"
+        verbose_name = 'количество ингредиента в рецепте '
         ordering = ('ingredient',)
         constraints = [
             models.UniqueConstraint(

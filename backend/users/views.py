@@ -16,7 +16,7 @@ class CustomUserViewSet(UserViewSet):
 
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 class BaseForFollowViewSets(generics.ListAPIView):
     serializer_class = FollowSerializer
@@ -33,9 +33,6 @@ class FollowCreateDestroyViewSet(
         generics.DestroyAPIView,
         generics.CreateAPIView,
         BaseForFollowViewSets,):
-
-    def get_queryset(self):
-        return self.request.user.author.select_related('follower')
 
     def get_object(self):
         user_id = self.kwargs['user_id']
