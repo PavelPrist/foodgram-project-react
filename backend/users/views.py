@@ -1,13 +1,10 @@
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import filters, mixins, viewsets, generics, status
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-    IsAuthenticated
-)
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.paginations import CustomPageNumberPagination
 from .models import User
 from .serializers import CustomUserSerializer, FollowSerializer
 
@@ -17,11 +14,14 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination
+
 
 class BaseForFollowViewSets(generics.ListAPIView):
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPageNumberPagination
+
 
 class FollowListViewSet(BaseForFollowViewSets):
 
@@ -50,10 +50,9 @@ class FollowCreateDestroyViewSet(
             return Response(
                 {'errors': 'Подписаться повторно на одного автора невозможно'},
                 status=status.HTTP_400_BAD_REQUEST)
-        subscribe_obj = request.user.author.create(author=author)
+        request.user.author.create(author=author)
         serializer = self.get_serializer(author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_destroy(self, author):
         self.request.user.author.filter(author=author).delete()
-

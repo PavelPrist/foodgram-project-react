@@ -81,6 +81,10 @@ class FollowSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         recipes = obj.recipes.all()
+        request = self.context.get('request')
+        recipes_limit = request.query_params.get('recipes_limit')
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
         return RecipeMiniSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
