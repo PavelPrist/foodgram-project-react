@@ -103,23 +103,43 @@ class Recipe(models.Model):
         verbose_name = 'рецепт'
         verbose_name_plural = 'рецепты'
         ordering = ['-pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'author'),
+                name='recipe_name_unique')
+        ]
 
     def __str__(self):
         return self.name
 
 
-class AmountOfIngredient(models.Model):
-    ingredient = models.ForeignKey(
-        Ingredient,
-        verbose_name='название ингредиента',
-        on_delete=models.CASCADE,
-        related_name='amount',
-    )
+class RecipeBaseModel(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='рецепт',
         on_delete=models.CASCADE,
-        related_name='amount',
+    )
+
+    class Meta:
+        abstract = True
+
+
+class UserBaseModel(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='пользователь',
+    )
+
+    class Meta:
+        abstract = True
+
+
+class AmountOfIngredient(RecipeBaseModel):
+    ingredient = models.ForeignKey(
+        Ingredient,
+        verbose_name='название ингредиента',
+        on_delete=models.CASCADE,
     )
     amount = models.PositiveIntegerField(
         verbose_name='количество ингредиента',
@@ -129,14 +149,33 @@ class AmountOfIngredient(models.Model):
     )
 
     class Meta:
+        default_related_name = 'amount'
         verbose_name = 'количество ингредиента в рецепте '
         ordering = ('ingredient',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['ingredient', 'amount'],
-                name='unique_amount_ingredient'
-            )
-        ]
 
     def __str__(self):
         return self.ingredient.name
+
+
+class Favorite(RecipeBaseModel, UserBaseModel):
+
+    class Meta:
+        default_related_name = 'favorite'
+        verbose_name = 'избранное'
+        verbose_name_plural = 'избранные'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique favorites')
+        ]
+
+
+class ShoppingCart(RecipeBaseModel, UserBaseModel):
+
+    class Meta:
+        default_related_name = 'shopcart'
+        verbose_name = 'список покупок'
+        verbose_name_plural = 'списки покупок'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique shopping_cart')
+        ]
