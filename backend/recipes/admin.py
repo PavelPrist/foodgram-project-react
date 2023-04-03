@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import AmountOfIngredient, Ingredient, Recipe, Tag
+from .models import (
+    AmountOfIngredient,
+    Favorite,
+    Ingredient,
+    Recipe,
+    ShoppingCart,
+    Tag
+)
 
 
 @admin.register(Tag)
@@ -28,6 +35,7 @@ class RecipesIngredientsInline(admin.TabularInline):
     model = Recipe.ingredients.through
     extra = 3
 
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -38,6 +46,7 @@ class RecipeAdmin(admin.ModelAdmin):
         Recipe.image.field.name,
         Recipe.cooking_time.field.name,
         Recipe.pub_date.field.name,
+        'amount_favorites'
     )
     inlines = (RecipesIngredientsInline,)
     filter_horizontal = (Recipe.tags.field.name,)
@@ -49,7 +58,23 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display_links = (Recipe.name.field.name, Recipe.id.field.name,)
     list_editable = (Recipe.text.field.name,)
     search_fields = (Recipe.name.field.name,)
+    readonly_fields = ('amount_favorites',)
     empty_value_display = '-пусто-'
+
+    @staticmethod
+    def get_end_letter(value):
+        end_lib = {5: '', 2: 'а', 0: ''}
+        for key in end_lib:
+            if value % 10 >= key:
+                return end_lib[key]
+        return ''
+
+    @admin.display(description='В избранном')
+    def amount_favorites(self, obj):
+        count_ = obj.favorite.count()
+        end_letters = self.get_end_letter(obj.favorite.count())
+        return (f'Рецепт добавлен в '
+               f'избранное у авторов {count_} раз{end_letters}')
 
 
 @admin.register(AmountOfIngredient)
@@ -61,3 +86,7 @@ class AmountOfIngredientAdmin(admin.ModelAdmin):
         'amount'
     )
     empty_value_display = '-пусто-'
+
+
+admin.site.register(Favorite)
+admin.site.register(ShoppingCart)

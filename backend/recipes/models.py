@@ -92,7 +92,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         'время приготовления блюда по рецепту',
-        help_text = 'Время приготовления в минутах',
+        help_text='Время приготовления в минутах',
     )
     pub_date = models.DateTimeField(
         'дата публикации',

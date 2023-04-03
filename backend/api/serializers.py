@@ -129,18 +129,17 @@ class RecipeListGetSerializer(serializers.ModelSerializer):
         ordering = ['name']
         read_only_fields = ('author',)
 
-    def get_is_favorited(self, obj):
+    def check_anonymous_help_func(self, obj, model):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+        return model.objects.filter(user=request.user, recipe=obj).exists()
+
+    def get_is_favorited(self, obj):
+        return self.check_anonymous_help_func(obj=obj, model=Favorite)
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return ShoppingCart.objects.filter(
-            user=request.user, recipe=obj).exists()
+        return self.check_anonymous_help_func(obj=obj, model=ShoppingCart)
 
     def get_ingredients(self, obj):
         queryset = AmountOfIngredient.objects.filter(recipe=obj)
