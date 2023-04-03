@@ -1,14 +1,28 @@
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
+import pdfkit
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from reportlab.pdfbase import pdfmetrics
 
 from .filters import RecipeFilterSet
 from .paginations import CustomPageNumberPagination
-from recipes.models import Ingredient, Favorite, Recipe, ShoppingCart, Tag
+from recipes.models import (
+    AmountOfIngredient,
+    Ingredient,
+    Favorite,
+    Recipe,
+    ShoppingCart,
+    Tag,
+)
 from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (
     IngredientSerializer,
@@ -19,9 +33,7 @@ from .serializers import (
     TagSerializer)
 
 
-
 class TagsViewSet(ReadOnlyModelViewSet):
-
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
@@ -29,13 +41,13 @@ class TagsViewSet(ReadOnlyModelViewSet):
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
-
     queryset = Ingredient.objects.all().order_by('id')
     serializer_class = IngredientSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
     search_fields = (r'^name',)
+
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all().order_by('name')
@@ -90,4 +102,69 @@ class RecipeViewSet(ModelViewSet):
             return self.delete_actions(
                 request=request, pk=pk, model=ShoppingCart)
 
+    @action(detail=False, methods=['get'],
+            permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        user = request.user
+        if not user.shopcart.exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        today = timezone.now()
+        queryset = AmountOfIngredient.objects.select_related(
+            'recipe', 'ingredient').filter(
+            recipe__shopcart__user=request.user)
 
+        ingredients_list = queryset.values_list(
+            'ingredient__name', 'ingredient__measurement_unit',
+            'recipe__name', 'amount')
+
+        ingredients_sum_amount = queryset.values(
+            'ingredient__name').annotate(sum_amount=Sum('amount'))
+
+        ingredient_amount_dict = {}  # словарик:имя ингредиента и общ.колич.
+        for item in ingredients_sum_amount:
+            ingredient_amount_dict[
+                item.get('ingredient__name')] = f'{item.get("sum_amount")}'
+
+        pdfmetrics.registerFont(
+            TTFont('FuturaOrto', 'data/FuturaOrto.ttf', 'UTF-8'))
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = (
+            f'attachment; '
+            f'filename="{user.username}_shopping_list.pdf"'
+        )
+        page = canvas.Canvas(response)
+        page.setFont('FuturaOrto', size=16)
+        text = [
+            f'Спасибо, за покупки!',
+            f'Пользователь: {user.get_full_name()}',
+            f'Список покупок. '
+            f'Дата: {today.day}, {today.month}, {today.year}'
+        ]
+        height = 800
+        for text in text:
+            page.drawString(
+                150,
+                height,
+                text
+            )
+            height -= 30
+        page.setFont('FuturaOrto', size=12)
+        height = 700
+        recipe_list = []
+        name_ingredient_list = []
+        for i, item in enumerate(ingredients_list):
+            if item[0] not in name_ingredient_list:
+                page.drawString(
+                    75, height,
+                    f'--{item[0]} - {ingredient_amount_dict[item[0]]} '
+                    f'{item[1]}')
+                height -= 20
+                recipe_list = []
+            if item[2] not in recipe_list:
+                page.drawString(150, height, f'Рецепт-{item[2]}: ')
+                height -= 30
+                recipe_list.append(item[2])
+            name_ingredient_list.append(item[0])
+        page.showPage()
+        page.save()
+        return response
