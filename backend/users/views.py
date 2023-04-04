@@ -1,10 +1,9 @@
+from api.paginations import CustomPageNumberPagination
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from api.paginations import CustomPageNumberPagination
 
 from .models import User
 from .serializers import CustomUserSerializer, FollowSerializer
