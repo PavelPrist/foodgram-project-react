@@ -1,13 +1,7 @@
 from django.contrib import admin
 
-from .models import (
-    AmountOfIngredient,
-    Favorite,
-    Ingredient,
-    Recipe,
-    ShoppingCart,
-    Tag
-)
+from .models import (AmountOfIngredient, Favorite, Ingredient, Recipe,
+                     ShoppingCart, Tag)
 
 
 @admin.register(Tag)
@@ -30,6 +24,7 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ('name',)
     search_fields = ('name',)
     empty_value_display = '-пусто-'
+
 
 class RecipesIngredientsInline(admin.TabularInline):
     model = Recipe.ingredients.through
@@ -74,7 +69,7 @@ class RecipeAdmin(admin.ModelAdmin):
         count_ = obj.favorite.count()
         end_letters = self.get_end_letter(obj.favorite.count())
         return (f'Рецепт добавлен в '
-               f'избранное у авторов {count_} раз{end_letters}')
+                f'избранное у авторов {count_} раз{end_letters}')
 
 
 @admin.register(AmountOfIngredient)

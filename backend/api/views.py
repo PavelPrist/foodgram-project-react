@@ -1,9 +1,9 @@
 from django.db.models import Sum
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-import pdfkit
+from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import filters, status
@@ -11,26 +11,16 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from reportlab.pdfbase import pdfmetrics
+
+from recipes.models import (AmountOfIngredient, Favorite, Ingredient, Recipe,
+                            ShoppingCart, Tag)
 
 from .filters import RecipeFilterSet
 from .paginations import CustomPageNumberPagination
-from recipes.models import (
-    AmountOfIngredient,
-    Ingredient,
-    Favorite,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
 from .permissions import IsAuthorOrAdminOrReadOnly
-from .serializers import (
-    IngredientSerializer,
-    FavoriteSerializer,
-    RecipeListGetSerializer,
-    RecipePostSerializer,
-    ShoppingCartSerializer,
-    TagSerializer)
+from .serializers import (FavoriteSerializer, IngredientSerializer,
+                          RecipeListGetSerializer, RecipePostSerializer,
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
@@ -91,6 +81,7 @@ class RecipeViewSet(ModelViewSet):
         if request.method == 'DELETE':
             return self.delete_actions(
                 request=request, pk=pk, model=Favorite)
+        return None
 
     @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
@@ -101,6 +92,7 @@ class RecipeViewSet(ModelViewSet):
         if request.method == 'DELETE':
             return self.delete_actions(
                 request=request, pk=pk, model=ShoppingCart)
+        return None
 
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
@@ -135,7 +127,7 @@ class RecipeViewSet(ModelViewSet):
         page = canvas.Canvas(response)
         page.setFont('FuturaOrto', size=16)
         text = [
-            f'Спасибо, за покупки!',
+            'Спасибо, за покупки!',
             f'Пользователь: {user.get_full_name()}',
             f'Список покупок. '
             f'Дата: {today.day}, {today.month}, {today.year}'

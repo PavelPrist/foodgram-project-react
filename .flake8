@@ -1,0 +1,3 @@
+[flake8]
+exclude = settings.py,.git,.github,pycache,*/migrations/,venv/
+style = PEP8

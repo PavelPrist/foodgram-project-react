@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from api.paginations import CustomPageNumberPagination
+
 from .models import User
 from .serializers import CustomUserSerializer, FollowSerializer
 

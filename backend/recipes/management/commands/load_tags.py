@@ -14,6 +14,7 @@ class Command(BaseCommand):
     Скрипт для формирования команды добавки тэгов в базу из csv file
     """
     help = 'loading tags from data in csv'
+
     def add_arguments(self, parser):
         parser.add_argument(
             'filename',
