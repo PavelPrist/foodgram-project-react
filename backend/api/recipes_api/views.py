@@ -1,3 +1,6 @@
+from api.filters import RecipeFilterSet
+from api.paginations import CustomPageNumberPagination
+from api.permissions import IsAuthorOrAdminOrReadOnly
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -14,9 +17,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from .filters import RecipeFilterSet
-from .paginations import CustomPageNumberPagination
-from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeListGetSerializer, RecipePostSerializer,
                           ShoppingCartSerializer, TagSerializer)
@@ -35,7 +35,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
     pagination_class = None
     filter_backends = (filters.SearchFilter,)
-    search_fields = (r'^name',)
+    search_fields = (r'^name', 'name')
 
 
 class RecipeViewSet(ModelViewSet):
@@ -159,3 +159,7 @@ class RecipeViewSet(ModelViewSet):
         page.showPage()
         page.save()
         return response
+
+    def perform_destroy(self, instance):
+        instance.image.delete()
+        instance.delete()

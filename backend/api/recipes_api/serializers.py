@@ -1,9 +1,9 @@
+from api.users_api.serializers import CustomUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (AmountOfIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from users.serializers import CustomUserSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):

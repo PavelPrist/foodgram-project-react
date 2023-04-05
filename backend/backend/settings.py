@@ -164,9 +164,9 @@ DJOSER = {
     "SEND_ACTIVATION_EMAIL": False,
     'HIDE_USERS': False,
     "SERIALIZERS": {
-        "user_create": "users.serializers.CustomUserCreateSerializer",
-        "user": "users.serializers.CustomUserSerializer",
-        "current_user": "users.serializers.CustomUserSerializer",
+        "user_create": "api.users_api.serializers.CustomUserCreateSerializer",
+        "user": "api.users_api.serializers.CustomUserSerializer",
+        "current_user": "api.users_api.serializers.CustomUserSerializer",
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdmin'],

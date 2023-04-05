@@ -4,8 +4,8 @@ from djoser.views import UserViewSet
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from users.models import User
 
-from .models import User
 from .serializers import CustomUserSerializer, FollowSerializer
 
 
@@ -42,16 +42,11 @@ class FollowCreateDestroyViewSet(
 
     def create(self, request, *args, **kwargs):
         author = self.get_object()
-        if request.user.id == author.id:
-            return Response(
-                {'errors': 'Невозможно подписаться на самого себя'},
-                status=status.HTTP_400_BAD_REQUEST)
-        if request.user.author.filter(author=author).exists():
-            return Response(
-                {'errors': 'Подписаться повторно на одного автора невозможно'},
-                status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(
+            author, data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
         request.user.author.create(author=author)
-        serializer = self.get_serializer(author)
+        self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_destroy(self, author):

@@ -1,8 +1,7 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import Recipe
-from rest_framework import serializers
-
-from .models import Follow, User
+from rest_framework import serializers, status
+from users.models import Follow, User
 
 
 class CustomUserSerializer(UserSerializer):
@@ -17,7 +16,8 @@ class CustomUserSerializer(UserSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_subscribed')
+            'is_subscribed'
+        )
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
@@ -77,6 +77,22 @@ class FollowSerializer(CustomUserSerializer):
             'recipes',
             'recipes_count'
         )
+        read_only_fields = ('email', 'username', 'first_name', 'last_name')
+
+    def validate(self, data):
+        author = self.instance
+        follower = self.context.get('request').user
+        if Follow.objects.filter(author=author, follower=follower).exists():
+            raise serializers.ValidationError(
+                detail='Подписаться повторно на одного автора невозможно',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        if follower == author:
+            raise serializers.ValidationError(
+                detail='Невозможно подписаться на самого себя',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
 
     def get_recipes(self, obj):
         recipes = obj.recipes.all()
