@@ -1,13 +1,10 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
-from django.http import HttpResponse
 from django.utils import timezone
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from rest_framework.response import Response
-from rest_framework import status
 from users.models import User
 
 
@@ -120,7 +117,7 @@ class Recipe(models.Model):
         return self.name
 
     @classmethod
-    def get_shopping_cart(self, user, request, response):
+    def get_shopping_cart(cls, user, request, response):
         today = timezone.now()
         queryset = AmountOfIngredient.get_queryset_recipe_users(
             request=request)
@@ -219,11 +216,10 @@ class AmountOfIngredient(RecipeBaseModel):
         return self.ingredient.name
 
     @classmethod
-    def get_queryset_recipe_users(cls,request):
-        queryset = cls.objects.select_related(
+    def get_queryset_recipe_users(cls, request):
+        return cls.objects.select_related(
             'recipe', 'ingredient').filter(
             recipe__shopcart__user=request.user)
-        return queryset
 
 
 class Favorite(RecipeBaseModel, UserBaseModel):
