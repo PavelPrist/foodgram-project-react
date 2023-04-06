@@ -4,7 +4,6 @@ from django.db.models import Sum
 from django.utils import timezone
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from users.models import User
 
 
@@ -117,10 +116,10 @@ class Recipe(models.Model):
         return self.name
 
     @classmethod
-    def get_shopping_cart(cls, user, request, response):
+    def get_shopping_cart(cls, user, page):
         today = timezone.now()
         queryset = AmountOfIngredient.get_queryset_recipe_users(
-            request=request)
+            user=user)
         ingredients_list = queryset.values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'recipe__name', 'amount')
@@ -134,7 +133,7 @@ class Recipe(models.Model):
 
         pdfmetrics.registerFont(
             TTFont('FuturaOrto', 'data/FuturaOrto.ttf', 'UTF-8'))
-        page = canvas.Canvas(response)
+
         page.setFont('FuturaOrto', size=16)
         text = [
             'Спасибо, за покупки!',
@@ -169,7 +168,6 @@ class Recipe(models.Model):
             name_ingredient_list.append(item[0])
         page.showPage()
         page.save()
-        return response
 
 
 class RecipeBaseModel(models.Model):
@@ -216,10 +214,10 @@ class AmountOfIngredient(RecipeBaseModel):
         return self.ingredient.name
 
     @classmethod
-    def get_queryset_recipe_users(cls, request):
+    def get_queryset_recipe_users(cls, user):
         return cls.objects.select_related(
             'recipe', 'ingredient').filter(
-            recipe__shopcart__user=request.user)
+            recipe__shopcart__user=user)
 
 
 class Favorite(RecipeBaseModel, UserBaseModel):

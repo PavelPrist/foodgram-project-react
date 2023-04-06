@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from reportlab.pdfgen import canvas
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -98,7 +99,9 @@ class RecipeViewSet(ModelViewSet):
             f'attachment; '
             f'filename="{user.username}_shopping_list.pdf"'
         )
-        return Recipe.get_shopping_cart(user, request, response)
+        page = canvas.Canvas(response)
+        Recipe.get_shopping_cart(user, page)
+        return response
 
     def perform_destroy(self, instance):
         instance.image.delete()
