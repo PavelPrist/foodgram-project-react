@@ -121,14 +121,12 @@ class Recipe(models.Model):
 
     @classmethod
     def get_shopping_cart(self, user, request, response):
-
         today = timezone.now()
         queryset = AmountOfIngredient.get_queryset_recipe_users(
             request=request)
         ingredients_list = queryset.values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'recipe__name', 'amount')
-
         ingredients_sum_amount = queryset.values(
             'ingredient__name').annotate(sum_amount=Sum('amount'))
 
@@ -139,11 +137,6 @@ class Recipe(models.Model):
 
         pdfmetrics.registerFont(
             TTFont('FuturaOrto', 'data/FuturaOrto.ttf', 'UTF-8'))
-        # response = HttpResponse(content_type='application/pdf')
-        # response['Content-Disposition'] = (
-        #     f'attachment; '
-        #     f'filename="{user.username}_shopping_list.pdf"'
-        # )
         page = canvas.Canvas(response)
         page.setFont('FuturaOrto', size=16)
         text = [
