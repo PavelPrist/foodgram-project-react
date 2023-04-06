@@ -147,7 +147,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "backend_static")
 MEDIA_URL = '/recipes_img/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'recipes_img')
 
-# Default primary key field type
+# Default primary key field typ
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
