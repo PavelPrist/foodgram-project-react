@@ -21,6 +21,7 @@ services:
 
   frontend:
     image: pavelprist/foodgram_frontend:latest
+    restart: always
     volumes:
       - ../frontend/:/app/result_build/
 
