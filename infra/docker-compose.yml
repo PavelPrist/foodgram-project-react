@@ -20,7 +20,7 @@ services:
       - ./.env
 
   frontend:
-    image: pavelprist/foodgram_frontend:latest
+    image: pavelprist/frontend_foodgram:latest
     restart: always
     volumes:
       - ../frontend/:/app/result_build/
