@@ -132,9 +132,9 @@ class Recipe(models.Model):
                 item.get('ingredient__name')] = f'{item.get("sum_amount")}'
 
         pdfmetrics.registerFont(
-            TTFont('FuturaOrto', 'data/FuturaOrto.ttf', 'UTF-8'))
+            TTFont('Handicraft1', 'data/Handicraft1.ttf', 'UTF-8'))
 
-        page.setFont('FuturaOrto', size=16)
+        page.setFont('Handicraft1', size=16)
         text = [
             'Спасибо, за покупки!',
             f'Пользователь: {user.get_full_name()}',
@@ -149,7 +149,7 @@ class Recipe(models.Model):
                 text
             )
             height -= 30
-        page.setFont('FuturaOrto', size=12)
+        page.setFont('Handicraft1', size=12)
         height = 700
         recipe_list = []
         name_ingredient_list = []

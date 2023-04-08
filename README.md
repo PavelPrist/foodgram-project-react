@@ -5,6 +5,8 @@
 
 админ:
 
+email: ya@ya.ru
+
 логин- admin
 
 пароль- admin
