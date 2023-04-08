@@ -1,4 +1,4 @@
-from api.filters import RecipeFilterSet, IngredientSearchFilter
+from api.filters import IngredientSearchFilter, RecipeFilterSet
 from api.paginations import CustomPageNumberPagination
 from api.permissions import IsAuthorOrAdminOrReadOnly
 from django.http import HttpResponse
@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from reportlab.pdfgen import canvas
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
