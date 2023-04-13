@@ -33,6 +33,6 @@ class Command(BaseCommand):
                         color=row[1],
                         slug=row[2]
                     )
-                print('Load tags.csv have successful finished')
+                print('Load tags.csv have successfully finished')
         except FileNotFoundError:
             raise CommandError('Добавьте файл tags.csv в директорию data')

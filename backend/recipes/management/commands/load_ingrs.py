@@ -33,6 +33,6 @@ class Command(BaseCommand):
                         name=name,
                         measurement_unit=measurement_unit
                     )
-                print('Load ingredients.csv have successful finished')
+                print('Load ingredients.csv have successfully finished')
         except FileNotFoundError:
             raise CommandError('Добавьте файл ingredients в директорию data')

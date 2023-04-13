@@ -27,7 +27,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class RecipesIngredientsInline(admin.TabularInline):
-    model = Recipe.ingredients.through
+    model = AmountOfIngredient
     extra = 3
 
 
@@ -42,6 +42,15 @@ class RecipeAdmin(admin.ModelAdmin):
         Recipe.cooking_time.field.name,
         Recipe.pub_date.field.name,
         'amount_favorites'
+    )
+    fieldsets = (
+        (None, {
+            'fields': (('name', 'author'), 'text')
+        }),
+        ('Advanced options', {
+            'classes': ('extrapretty',),
+            'fields': ('tags',),
+        }),
     )
     inlines = (RecipesIngredientsInline,)
     filter_horizontal = (Recipe.tags.field.name,)

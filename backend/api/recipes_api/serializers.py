@@ -120,7 +120,7 @@ class RecipeListGetSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
         ordering = ['name']
-        read_only_fields = ('author',)
+        # read_only_fields = ('author',)
 
     def check_anonymous_help_func(self, obj, model):
         request = self.context.get('request')
